@@ -1,0 +1,26 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/app/web;
+
+    index app.php;
+
+    server_name _;
+
+    location / {
+        try_files $uri @rewriteapp;
+    }
+
+    location @rewriteapp {
+        rewrite ^(.*)$ /app.php/$1 last;
+    }
+
+    location ~ ^/(app|app_dev|config)\.php(/|$) {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass php-upstream;
+    }
+
+    error_log /var/log/nginx/app.error.log;
+    access_log /var/log/nginx/app.access.log;
+}
